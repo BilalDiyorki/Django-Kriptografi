@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %} Kullanıcı Giriş {% endblock %}
+
+
+{% block content %}
+<style>
+.resim {
+    display: block;
+    margin: 0 auto; /* Resmi yatayda ortalar */
+    max-width: 180px; /* Resmin maksimum genişliğini belirler */
+    height: auto; /* Yükseklik otomatik olarak ayarlanır */
+}
+</style>
+<br>
+<div class="container">
+    <div class="centered-img">
+        <img class="resim" src="{% static 'media/pngegg.png' %}" alt="Resim Açıklaması">
+    </div>
+</div>
+
+<br>
+<br>
+<div class="row">
+    <div class="col-4">
+    </div>
+    <div class="col-4">
+        <form method="POST">
+            {% csrf_token %}
+            {{form|crispy }}
+            <div class="row">
+                <div class="col-5">
+                    <a href="{% url 'accounts:kayit' %}" class="btn btn-warning btn-block mt-3 mb-3">Kayıt Ol</a>
+                </div>
+                <div class="col-7">
+                    <input type="submit" class="btn btn-success btn-block mt-3 mb-3" value="Giriş Yap"/>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-4">
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} Email Gönder {% endblock %}
+
+{% block content %}
+<style>
+.customcode {
+    background-color: #f4f4f4;
+    padding: 0px 0px;
+    border-radius: 4px;
+}
+.custompre {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+.info-button {
+    background-color: transparent;
+    color: #2a3b4d;
+    padding: 10px 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+.info-button i {
+    margin-right: 8px;
+}
+</style>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-10">
+                    <h1>Send Mail</h1>
+                </div>
+                <div class="col-2">
+                    <!-- Button trigger modal -->
+                    <button type="button" class= "info-button" data-toggle="modal" data-target="#exampleModal">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                    
+                    
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h4 class="modal-title" id="exampleModalLabel">RSA'nın Şifreleyebileceği Maksimum Veri Boyutu</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>
+                                    RSA anahtarının boyutu (örneğin, 2048 bit) ve kullanılan padding şeması (OAEP) maksimum şifrelenebilir veri boyutunu belirler.
+                                </p>
+                                <p>
+                                    OAEP padding kullanıldığında, maksimum veri boyutu genellikle şu şekilde hesaplanır:
+                                </p>
+                                <pre class="custompre"><code  class="customcode">maksimum_boyut = anahtar_boyutu (bayt cinsinden) - 2 * hash_boyutu - 2</code></pre>
+                                <p>
+                                    Örneğin, (Bizim burda kullandığımız gibi) 2048 bitlik bir RSA anahtarı (256 bayt) ve SHA-256 hash fonksiyonu (32 bayt) kullanıyorsanız:
+                                </p>
+                                <pre class="custompre"><code  class="customcode">maksimum_boyut = 256 - 2 * 32 - 2 = 190 bayt</code></pre>
+                                <h4>Çözüm: Hibrit Şifreleme Kullanımı</h4>
+                                <p>
+                                    Büyük veri bloklarını şifrelemek için RSA yerine simetrik şifreleme algoritmalarını (örneğin AES) kullanmanız gerekir. Hibrit şifreleme yaklaşımı, şu adımları içerir:
+                                </p>
+                                <h5>Simetrik Anahtar Oluşturma:</h5>
+                                <p>Rastgele bir simetrik anahtar oluşturun (örneğin AES anahtarı).</p>
+                                <h5>Veriyi Simetrik Anahtarla Şifreleme:</h5>
+                                <p>Büyük veriyi simetrik anahtar kullanarak şifreleyin.</p>
+                                <h5>Simetrik Anahtarı RSA ile Şifreleme:</h5>
+                                <p>Simetrik anahtarı RSA kullanarak şifreleyin.</p>
+                                <h5>Sonuçları Birleştirme:</h5>
+                                <p>Şifrelenmiş simetrik anahtarı ve şifrelenmiş veriyi birleştirin ve saklayın/gönderin.</p>
+                            </div>
+                            <!--<div class="modal-footer">
+                            <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Kapat</button>
+                            </div>-->
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="mesaj">Mesajınız:</label>
+                    <textarea class="form-control" name="mesaj" id="mesaj" cols="30" rows="10" required>{{ mesaj }}</textarea>
+                   
+                    <div class="input-group flex-nowrap mt-2">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text" id="addon-wrapping">*</span>
+                        </div>
+                        <input type="text" name="public_key" id="public_key" value="{{ public_key }}" class="form-control" placeholder="Alıcının Genel Anahtarı" aria-label="Alıcının Genel Anahtarı" aria-describedby="addon-wrapping" required>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn btn-block btn-primary" name="sifrele" value="Şifrele ve Kaydet">
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            {% if sifrelenmis_mesaj %}
+            <div class=" mt-3">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="imza" value="{{ imza }}">
+                    <input type="hidden" name="mesaj" value="{{ mesaj }}">
+                    <input type="hidden" name="sifrelenmis_mesaj" value="{{ sifrelenmis_mesaj }}">
+
+                    <div class="input-group flex-nowrap mb-2">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text" id="addon-wrapping">@</span>
+                        </div>
+                        <input type="email" name="email" id="email" value="{{ email }}" class="form-control" placeholder="Alıcının Email Adresi" aria-label="Alıcının Email Adresi" aria-describedby="addon-wrapping" required>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-block btn-success" name="gonder" value="Gönder">
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+            {% if sifrelenmis_mesaj %}
+            <div class="card">
+                <div class="card-header">
+                    Sifrelenmis Mesaj
+                </div>
+                <div class="card-body">
+                    <p>{{ sifrelenmis_mesaj }}</p>
+                </div>
+            </div>
+            {% endif %}
+            {% if imza %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    Imza
+                </div>
+                <div class="card-body">
+                    <p>{{ imza }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!--
+<h1>Send Mail</h1>
+<form method="post">
+    {% csrf_token %}
+    {% if imza %}
+    <input type="hidden" name="imza" value="{{ imza }}">
+    {% endif %}
+    {% if sifrelenmis_mesaj %}
+    <input type="hidden" name="sifrelenmis_mesaj" value="{{ sifrelenmis_mesaj }}">
+    {% endif %}
+    <div>
+        <label for="mesaj">Mesajınız:</label>
+        <textarea name="mesaj" id="mesaj" cols="30" rows="10" required>{{ mesaj }}</textarea>
+    </div>
+    <div>
+        <input type="submit" name="sifrele" value="Şifrele ve Kaydet">
+    </div>
+    <div>        
+        <input type="submit" name="gonder" value="Gönder">
+    </div>
+</form>
+
+
+
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <h1>Send Mail</h1>
+            <form method="post">
+                {% csrf_token %}
+                {% if imza %}
+                <input type="hidden" name="imza" value="{{ imza }}">
+                {% endif %}
+                {% if sifrelenmis_mesaj %}
+                <input type="hidden" name="sifrelenmis_mesaj" value="{{ sifrelenmis_mesaj }}">
+                {% endif %}
+                <div class="form-group">
+                    <label for="mesaj">Mesajınız:</label>
+                    <textarea class="form-control" name="mesaj" id="mesaj" cols="30" rows="10" required>{{ mesaj }}</textarea>
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn btn-primary" name="sifrele" value="Şifrele ve Kaydet">
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn btn-success" name="gonder" value="Gönder">
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            {% if sifrelenmis_mesaj %}
+            <div class="card">
+                <div class="card-header">
+                    Sifrelenmis Mesaj
+                </div>
+                <div class="card-body">
+                    <p>{{ sifrelenmis_mesaj }}</p>
+                </div>
+            </div>
+            {% endif %}
+            {% if imza %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    Imza
+                </div>
+                <div class="card-body">
+                    <p>{{ imza }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+-->
