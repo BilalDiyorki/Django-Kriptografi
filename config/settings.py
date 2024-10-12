@@ -150,7 +150,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'bilalaydineem@gmail.com'
-EMAIL_HOST_PASSWORD = 'ynyb xpou qaik ptup'
+EMAIL_HOST_PASSWORD = '3. PARTİ UYGULAMA ŞİFRESİ'
 DEFAULT_FROM_EMAIL = 'bilalaydineem@gmail.com'
 
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
